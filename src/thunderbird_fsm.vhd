@@ -84,25 +84,65 @@
 library ieee;
   use ieee.std_logic_1164.all;
   use ieee.numeric_std.all;
+  
+--| Binary State Encoding key
+--| --------------------
+--| State | Encoding
+--| --------------------
+--| OFF   | 000
+--| ON    | 001
+--| R1    | 010
+--| R2    | 011
+--| R3    | 100
+--| L1    | 101
+--| L2    | 110
+--| L3    | 111
+--| --------------------
  
-entity thunderbird_fsm is 
---  port(
-	
---  );
+entity thunderbird_fsm is
+    port (
+        i_clk, i_reset  : in    std_logic;
+        i_left, i_right : in    std_logic;
+        o_lights_L      : out   std_logic_vector(2 downto 0);
+        o_lights_R      : out   std_logic_vector(2 downto 0)
+    );
 end thunderbird_fsm;
 
 architecture thunderbird_fsm_arch of thunderbird_fsm is 
 
 -- CONSTANTS ------------------------------------------------------------------
-  
+  signal S : std_logic_vector(2 downto 0) := "000";
+  signal S_next : std_logic_vector(2 downto 0) := "000";
 begin
 
 	-- CONCURRENT STATEMENTS --------------------------------------------------------	
+	--Next state:
+	S_next(2) <= (i_left and i_right) or (not S(0) and S(1) and not S(2)) or (not S(0) and not S(1) and not S(2) and i_left) or (S(0) and S(1) and not S(2));
+	S_next(1) <= (not S(0) and not S(1) and not S(2) and i_right) or (not S(0) and S(1) and not S(2)) or (S(0) and not S(1) and S(2)) or (S(0) and S(1) and not S(2));
+	S_next(0) <= (not S(0) and S(1) and S(2)) or (not S(0) and not S(1) and not S(2) and i_left) or (S(0) and not S(1) and S(2)) or (S(0) and S(1) and not S(2));
+	
+	--Output logic
+	o_lights_L(0) <=(not S(0) and not S(1) and S(2)) or (S(0) and not S(1) and S(2)) or (S(0) and S(1) and not S(2)) or (S(0) and S(1) and S(2));--001,101,110,111
+	o_lights_L(1) <= (not S(0) and not S(1) and S(2)) or (S(0) and S(1) and not S(2)) or (S(0) and S(1) and S(2)); --001,110,111
+	o_lights_L(2) <= (not S(0) and not S(1) and S(2)) or (S(0) and S(1) and S(2));--001,111
+	
+	o_lights_R(0) <= (not S(0) and not S(1) and S(2)) or (not S(0) and S(1) and not S(2)) or (not S(0) and S(1) and S(2)) or (S(0) and not S(1) and not S(2));---001,010, 011,100
+	o_lights_R(1) <= (not S(0) and not S(1) and S(2)) or (not S(0) and S(1) and S(2)) or (S(0) and not S(1) and not S(2));--001, 011,100
+	o_lights_R(2) <= (not S(0) and not S(1) and S(2)) or (S(0) and not S(1) and not S(2));--001,100
 	
     ---------------------------------------------------------------------------------
 	
 	-- PROCESSES --------------------------------------------------------------------
-    
+	register_proc : process (i_clk, i_reset)
+	begin
+			--Reset state is yellow
+if i_reset = '1' then
+        S <= "000";
+    elsif (rising_edge(i_clk)) then
+        S <= S_next;    -- next state becomes current state
+  end if;
+
+	end process register_proc;
 	-----------------------------------------------------					   
 				  
 end thunderbird_fsm_arch;

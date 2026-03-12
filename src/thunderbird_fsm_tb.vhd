@@ -57,28 +57,80 @@ end thunderbird_fsm_tb;
 architecture test_bench of thunderbird_fsm_tb is 
 	
 	component thunderbird_fsm is 
---	  port(
-		
---	  );
+	  port(
+		i_clk, i_reset  : in    std_logic;
+        i_left, i_right : in    std_logic;
+        o_lights_L      : out   std_logic_vector(2 downto 0);
+        o_lights_R      : out   std_logic_vector(2 downto 0)
+	  );
 	end component thunderbird_fsm;
 
 	-- test I/O signals
+	--inputs
+	signal w_Left : std_logic := '0';
+	signal w_Right : std_logic := '0';
+	signal w_reset : std_logic := '0';
+	signal w_clk : std_logic := '0';
+	
+	--output
+	signal w_blinker : std_logic_vector(5 downto 0) := "000000";
+	
 	
 	-- constants
-	
+	constant k_clk_period : time := 10 ns;
 	
 begin
 	-- PORT MAPS ----------------------------------------
-	
-	-----------------------------------------------------
+	uut: thunderbird_fsm port map (
+	i_clk => w_clk,
+	i_reset => w_reset,
+	i_left => w_Left,
+	i_right => w_Right,
+	o_lights_L => w_blinker(2 downto 0),
+	o_lights_R => w_blinker(5 downto 3)
+	);
+	---------------z--------------------------------------
 	
 	-- PROCESSES ----------------------------------------	
     -- Clock process ------------------------------------
-    
+    clk_proc : process
+	begin
+		w_clk <= '0';
+        wait for k_clk_period;
+		w_clk <= '1';
+		wait for k_clk_period;
+	end process;
 	-----------------------------------------------------
 	
 	-- Test Plan Process --------------------------------
-	
+	sim_proc: process
+	begin
+	w_reset <= '1';
+		wait for k_clk_period*1;
+		 assert w_blinker = "000000" report "bad reset" severity failure;
+   
+    w_reset <= '0';
+    wait for k_clk_period*1;
+    
+    --lefts
+    w_left <= '1';
+    wait for 120 ns;
+    --assert w_blinker = "001000" report "bad left" severity failure;
+    w_left <= '0';
+    wait for 30ns;
+    --rights
+    w_right <= '1';
+    wait for 120 ns;
+    --hazards
+    w_left <= '1';
+    wait for 120 ns;
+    --reset
+    w_reset <= '1';
+    
+    
+			
+		wait;
+    end process;
 	-----------------------------------------------------	
 	
 end test_bench;
