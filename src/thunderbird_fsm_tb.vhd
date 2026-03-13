@@ -135,8 +135,14 @@ begin
     wait for 60 ns;
     assert w_blinker = "111111" report "bad hazards" severity failure;
     --reset
+    w_left <='0';
     w_reset <= '1';
-    
+    wait for 20 ns;
+    w_reset <= '0';
+    w_right <= '1';
+    wait for 30ns;
+    w_left <= '1';
+    wait for 60 ns;
     
 			
 		wait;
