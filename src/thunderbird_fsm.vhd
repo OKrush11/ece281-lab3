@@ -117,7 +117,7 @@ begin
 
 	-- CONCURRENT STATEMENTS --------------------------------------------------------	
 	--Next state:
-	S_next(2) <= (i_left and i_right) or (not S(0) and S(1) and not S(2) and not i_left) or (not S(0) and not S(1) and not S(2) and i_left and not i_right) or (S(0) and S(1) and not S(2) and not i_right);
+	S_next(2) <= (i_left and i_right and not S(2)) or (not S(0) and S(1) and not S(2) and not i_left) or (not S(0) and not S(1) and not S(2) and i_left and not i_right) or (S(0) and S(1) and not S(2) and not i_right);
 	S_next(1) <= (not S(0) and not S(1) and not S(2) and i_right and not i_left) or (not S(0) and S(1) and not S(2) and not i_left) or (S(0) and not S(1) and S(2) and not i_right) or (S(0) and S(1) and not S(2) and not i_right);
 	S_next(0) <= (not S(0) and S(1) and S(2) and not i_left) or (not S(0) and not S(1) and not S(2) and i_left and not i_right) or (S(0) and not S(1) and S(2) and not i_right) or (S(0) and S(1) and not S(2) and not i_right);
 	
