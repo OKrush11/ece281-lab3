@@ -112,18 +112,28 @@ begin
     w_reset <= '0';
     wait for k_clk_period*1;
     
-    --lefts
+    --lefts check all three left signal cascades.
     w_left <= '1';
-    wait for 120 ns;
-    --assert w_blinker = "001000" report "bad left" severity failure;
+    wait for 30 ns;
+    assert w_blinker = "000001" report "bad left1" severity failure;
+    wait for 20 ns;
+    assert w_blinker = "000011" report "bad left2" severity failure;
+    wait for 20 ns;
+    assert w_blinker = "000111" report "bad left3" severity failure;
     w_left <= '0';
-    wait for 30ns;
-    --rights
+    wait for 30 ns;
+    --rights check all three right signal cascades
     w_right <= '1';
-    wait for 120 ns;
-    --hazards
+    wait for 30 ns;
+    assert w_blinker = "001000" report "bad right1" severity failure;
+    wait for 20 ns;
+    assert w_blinker = "011000" report "bad right2" severity failure;
+    wait for 20 ns;
+    assert w_blinker = "111000" report "bad right3" severity failure;
+    --hazards check, if after 60 ns hazards arn't on terminate
     w_left <= '1';
-    wait for 120 ns;
+    wait for 60 ns;
+    assert w_blinker = "111111" report "bad hazards" severity failure;
     --reset
     w_reset <= '1';
     
