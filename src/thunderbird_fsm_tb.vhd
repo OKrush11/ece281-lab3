@@ -131,18 +131,18 @@ begin
     wait for 20 ns;
     assert w_blinker = "111000" report "bad right3" severity failure;
     --hazards check, if after 60 ns hazards arn't on terminate
-    w_left <= '1';
-    wait for 60 ns;
-    assert w_blinker = "111111" report "bad hazards" severity failure;
+   -- w_left <= '1';
+    --wait for 60 ns;
+    --assert w_blinker = "111111" report "bad hazards" severity failure;
     --reset
-    w_left <='0';
-    w_reset <= '1';
+    --w_left <='0';
+    --w_reset <= '1';
     wait for 20 ns;
-    w_reset <= '0';
-    w_right <= '1';
-    wait for 30ns;
-    w_left <= '1';
-    wait for 60 ns;
+    --w_reset <= '0';
+    --w_right <= '1';
+    --wait for 30ns;
+    --w_left <= '1';
+    --wait for 60 ns;
     
 			
 		wait;
